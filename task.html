@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium To-Do List</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      margin-top: 60px;
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+
+    .input-group button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .input-group button:hover {
+      background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 15px;
+    }
+
+    li {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-info span {
+      display: block;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .task-info .time {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .completed span {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .actions button {
+      margin-left: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .complete-btn {
+      background: #48bb78;
+      color: white;
+    }
+
+    .complete-btn:hover {
+      background: #38a169;
+    }
+
+    .edit-btn {
+      background: #f6ad55;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #dd6b20;
+    }
+
+    .delete-btn {
+      background: #f56565;
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background: #c53030;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>✨ Premium To-Do List</h2>
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter your task">
+      <input type="number" id="taskHours" placeholder="Time (hours)">
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    function addTask() {
+      const taskText = document.getElementById("taskInput").value.trim();
+      const taskHours = parseInt(document.getElementById("taskHours").value);
+
+      if (!taskText || isNaN(taskHours) || taskHours <= 0) {
+        alert("Please enter a valid task and time (in hours).");
+        return;
+      }
+
+      const deadline = new Date().getTime() + taskHours * 60 * 60 * 1000;
+      tasks.push({ text: taskText, deadline: deadline, completed: false });
+
+      document.getElementById("taskInput").value = "";
+      document.getElementById("taskHours").value = "";
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+
+        const infoDiv = document.createElement("div");
+        infoDiv.classList.add("task-info");
+
+        const taskSpan = document.createElement("span");
+        taskSpan.textContent = task.text;
+        if (task.completed) li.classList.add("completed");
+
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("time");
+        if (!task.completed) {
+          const remaining = Math.max(0, task.deadline - new Date().getTime());
+          const hours = Math.floor(remaining / (1000 * 60 * 60));
+          const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          timeSpan.textContent = `⏳ ${hours}h ${minutes}m remaining`;
+        } else {
+          timeSpan.textContent = "✅ Completed";
+        }
+
+        infoDiv.appendChild(taskSpan);
+        infoDiv.appendChild(timeSpan);
+
+        const actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("actions");
+
+        if (!task.completed) {
+          const completeBtn = document.createElement("button");
+          completeBtn.textContent = "Complete";
+          completeBtn.classList.add("complete-btn");
+          completeBtn.onclick = () => {
+            tasks[index].completed = true;
+            renderTasks();
+          };
+
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.classList.add("edit-btn");
+          editBtn.onclick = () => editTask(index);
+
+          actionsDiv.appendChild(completeBtn);
+          actionsDiv.appendChild(editBtn);
+        }
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.onclick = () => {
+          tasks.splice(index, 1);
+          renderTasks();
+        };
+
+        actionsDiv.appendChild(deleteBtn);
+
+        li.appendChild(infoDiv);
+        li.appendChild(actionsDiv);
+        list.appendChild(li);
+      });
+    }
+
+    function editTask(index) {
+      const newText = prompt("Update task:", tasks[index].text);
+      const newHours = parseInt(prompt("Update time limit (hours):", 
+        Math.ceil((tasks[index].deadline - new Date().getTime()) / (1000 * 60 * 60))));
+
+      if (newText && !isNaN(newHours) && newHours > 0) {
+        tasks[index].text = newText;
+        tasks[index].deadline = new Date().getTime() + newHours * 60 * 60 * 1000;
+        renderTasks();
+      } else {
+        alert("Invalid input! Task not updated.");
+      }
+    }
+
+    setInterval(renderTasks, 60000); // auto update every minute
+  </script>
+</body>
+</html>
